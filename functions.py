@@ -19,6 +19,8 @@ import plotly.express as px
 #import main as mn
 import visualizations as vs
 
+
+# Funcion para importar order book con ccxt
 def OrderBook(exchanges,symbol_1,symbol_2,symbol_3,limit):
     inicio=time.time()
     data_inicio_A = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -80,4 +82,17 @@ def OrderBook(exchanges,symbol_1,symbol_2,symbol_3,limit):
             time.sleep(10)
     return data1
 
-
+# 2.2 funcion de visualizacion de microestructura
+def visMicro(data):
+    data1 = pd.DataFrame()
+    data1["Exchange"] = data.iloc[:, 4]
+    data1["TimeStamp"] = data.iloc[:, 6]
+    data1["Ask_Volume"] = data.iloc[:, 1]
+    data1["Ask"] = data.iloc[:, 0]
+    data1["Bid_Volume"] = data.iloc[:, 3]
+    data1["Bid"] = data.iloc[:, 2]
+    data1["Total_Volume"] = data.iloc[:,1]+data.iloc[:,3]
+    data1["Mid_Price"]= (data1.Ask + data1.Bid)/2
+    data1["VWAP"] = (np.cumsum(data1.Mid_Price*data1.Total_Volume)/np.cumsum(data1.Total_Volume))
+    data1["Ticker"] = data.iloc[:, 5]
+    return data1
