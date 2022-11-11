@@ -19,7 +19,7 @@ import plotly.express as px
 #import main as mn
 import visualizations as vs
 
-
+# Desacargar y almacenar datos de orderbook
 def OrderBook(exchanges,symbol_1,symbol_2,symbol_3,limit):
     inicio=time.time()
     data_inicio_A = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -87,7 +87,7 @@ def OrderBook(exchanges,symbol_1,symbol_2,symbol_3,limit):
             time.sleep(10)
     return data1
 
-# 2.2 funcion de visualizacion de microestructura
+# Funcion de visualizacion de microestructura
 def visMicro(data):
     data1 = pd.DataFrame()
     data1["Exchange"] = data.iloc[:, 4]
@@ -100,5 +100,35 @@ def visMicro(data):
     data1["Mid_Price"]= (data1.Ask + data1.Bid)/2
     data1["VWAP"] = (np.cumsum(data1.Mid_Price*data1.Total_Volume)/np.cumsum(data1.Total_Volume))
     data1["Ticker"] = data.iloc[:, 5]
-    data1['Spread']=data.iloc[:7]
+    data1["Spread"] = data.iloc[:, 7]
+    data1["Closes"] = data.iloc[:, 8]
     return data1
+
+# Datos para sacar Roll spread
+def Roll_data(data):
+    covarianza = []
+    dates = np.unique(data.iloc[:,1])
+    for i in range(len(dates)):
+        y1 = data.iloc[:,7].where(data.iloc[:,1]==dates[i]).dropna()  # precios de cierre
+        y11 = np.diff(y1)
+        autocov = abs(np.cov(y11[1:len(y11)-1],y11[2:len(y11)]))[0,1]
+        covarianza.append(autocov)
+    return covarianza
+
+# Modelos de microestructura
+def modMicro(data):
+    data1 = pd.DataFrame()
+    dates = np.unique(data.iloc[:,1])
+    closes = []
+    spread = []
+    data1["TimeStamp"] = dates
+    for i in range(len(dates)):
+        closes2 = (data.iloc[:,7].where(data.iloc[:,1]==dates[i]).dropna()).iloc[0] # precios de cierre
+        spread2 = (data.iloc[:,10].where(data.iloc[:,1]==dates[i]).dropna()).iloc[0]
+        closes.append(closes2)
+        spread.append(spread2)
+    data1["Close"] = closes
+    data1["Spread"] = spread
+    data1["Effective Spread"] = 2*np.sqrt(Roll_data(data))
+    return data1
+
