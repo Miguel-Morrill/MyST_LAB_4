@@ -101,7 +101,7 @@ def visMicro(data):
     data1["VWAP"] = (np.cumsum(data1.Mid_Price*data1.Total_Volume)/np.cumsum(data1.Total_Volume))
     data1["Ticker"] = data.iloc[:, 5]
     data1["Spread"] = data.iloc[:, 7]
-    data1["Closes"] = data.iloc[:, 8]
+    data1["Closes"] = data.iloc[:, 9]
     return data1
 
 # Datos para sacar Roll spread
@@ -109,7 +109,7 @@ def Roll_data(data):
     covarianza = []
     dates = np.unique(data.iloc[:,1])
     for i in range(len(dates)):
-        y1 = data.iloc[:,7].where(data.iloc[:,1]==dates[i]).dropna()  # precios de cierre
+        y1 = data.iloc[:,11].where(data.iloc[:,1]==dates[i]).dropna()  # precios de cierre
         y11 = np.diff(y1)
         autocov = abs(np.cov(y11[1:len(y11)-1],y11[2:len(y11)]))[0,1]
         covarianza.append(autocov)
@@ -123,8 +123,8 @@ def modMicro(data):
     spread = []
     data1["TimeStamp"] = dates
     for i in range(len(dates)):
-        closes2 = (data.iloc[:,7].where(data.iloc[:,1]==dates[i]).dropna()).iloc[0] # precios de cierre
-        spread2 = (data.iloc[:,10].where(data.iloc[:,1]==dates[i]).dropna()).iloc[0]
+        closes2 = np.mean(data.iloc[:,11].where(data.iloc[:,1]==dates[i]).dropna()) # precios de cierre
+        spread2 = np.mean(data.iloc[:,10].where(data.iloc[:,1]==dates[i]).dropna())
         closes.append(closes2)
         spread.append(spread2)
     data1["Close"] = closes
