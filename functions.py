@@ -20,7 +20,6 @@ import plotly.express as px
 import visualizations as vs
 
 
-# Funcion para importar order book con ccxt
 def OrderBook(exchanges,symbol_1,symbol_2,symbol_3,limit):
     inicio=time.time()
     data_inicio_A = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -49,6 +48,8 @@ def OrderBook(exchanges,symbol_1,symbol_2,symbol_3,limit):
             data1["Ticker"]=symbol_1
             data1["Timestamp"]=OB1_time
             data1["Spread"]=(data1.Ask-data1.Bid)
+            data1['Levels']=len(OB1['asks'])
+            data1['Closes']=pd.DataFrame(exchanges[i].fetch_ohlcv(symbol='BTC/USDT',limit=limit)).iloc[:,3]
             tiempo=int(time.time()-inicio)/60
             DATA1=pd.DataFrame(data1)
             DATA1.to_csv("files\DATA_A.csv",index=False,header=False, mode="a")
@@ -62,6 +63,8 @@ def OrderBook(exchanges,symbol_1,symbol_2,symbol_3,limit):
             data2["Ticker"]=symbol_2
             data2["Timestamp"]=OB2_time
             data2["Spread"]=(data2.Ask-data2.Bid)
+            data2['Levels']=len(OB2['asks'])
+            data2['Closes']=pd.DataFrame(exchanges[i].fetch_ohlcv(symbol='BNB/USDT',limit=limit)).iloc[:,3]
             tiempo=int(time.time()-inicio)/60
             DATA2=pd.DataFrame(data2)
             DATA2.to_csv("files\DATA_B.csv",index=False,header=False, mode="a")
@@ -75,6 +78,8 @@ def OrderBook(exchanges,symbol_1,symbol_2,symbol_3,limit):
             data3["Ticker"]=symbol_3
             data3["Timestamp"]=OB3_time
             data3["Spread"]=(data3.Ask-data3.Bid)
+            data3['Levels']=len(OB3['asks'])
+            data3['Closes']=pd.DataFrame(exchanges[i].fetch_ohlcv(symbol='DOGE/USDT',limit=limit)).iloc[:,3]
             tiempo=int(time.time()-inicio)/60
             DATA3=pd.DataFrame(data3)
             DATA3.to_csv("files\DATA_C.csv",index=False,header=False, mode="a")
@@ -95,4 +100,5 @@ def visMicro(data):
     data1["Mid_Price"]= (data1.Ask + data1.Bid)/2
     data1["VWAP"] = (np.cumsum(data1.Mid_Price*data1.Total_Volume)/np.cumsum(data1.Total_Volume))
     data1["Ticker"] = data.iloc[:, 5]
+    data1['Spread']=data.iloc[:7]
     return data1
